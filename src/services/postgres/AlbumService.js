@@ -33,15 +33,6 @@ class AlbumsService{
     }
 
     async getAlbumById(id){
-        // const query = {
-        //     text: 'SELECT a.id, a.name, a.year, b.title FROM albums as a INNER JOIN songs as b ON a.id = b.albumid WHERE a.id = $1',
-        //     values: [id],
-        // };
-        // const result = await this._pool.query(query);
-        // if(!result.rows.length){
-        //     throw new NotFoundError('Album tidak ditemukan');
-        // }
-        // return result.rows[0];
         const query = {
             text: 'SELECT id, name, year FROM albums WHERE id = $1',
             values: [id],
