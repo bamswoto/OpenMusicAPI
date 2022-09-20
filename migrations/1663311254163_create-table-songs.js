@@ -1,7 +1,5 @@
 /* eslint-disable camelcase */
 
-exports.shorthands = undefined;
-
 exports.up = pgm => {
     pgm.createTable('songs', {
         id: {
@@ -28,15 +26,15 @@ exports.up = pgm => {
             type: 'INT',
             notNull: false,
         },
-        albumId: {
+        album_id: {
             type: 'VARCHAR(50)',
             notNull: false,
         },
-        createdAt: {
+        created_at: {
             type: 'TEXT',
             notNull: true,
         },
-        updatedAt: {
+        updated_at: {
             type: 'TEXT',
             notNull: true,
         },

@@ -46,7 +46,7 @@ class SongService {
     };
 
     const result = await this._pool.query(query);
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
     return result.rows[0];
@@ -73,7 +73,7 @@ class SongService {
   async editSongById(id, { title, performer, year, genre, duration, albumId }) {
     const updatedAt = new Date().toISOString();
     const query = {
-      text: 'UPDATE songs SET title = $1, performer = $2, year = $3, genre = $4, duration = $5, albumid = $6, updatedat = $7 WHERE id = $8 RETURNING id',
+      text: 'UPDATE songs SET title = $1, performer = $2, year = $3, genre = $4, duration = $5, "album_id" = $6, updated_at = $7 WHERE id = $8 RETURNING id',
       values: [title, performer, year, genre, duration, albumId, updatedAt, id],
     };
 
