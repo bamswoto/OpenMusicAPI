@@ -27,6 +27,7 @@ const playlists = require('./api/playlists');
 const PlaylistsService = require('./services/postgres/PlaylistsService');
 const PlaylistValidator = require('./validator/playlists');
 
+
 const init = async () => {
     const albumService = new AlbumService();
     const songService = new SongService();
