@@ -5,8 +5,9 @@ const NotFoundError = require("../../exceptions/NotFoundError");
 const AuthorizationError = require("../../exceptions/AuthorizationError");
 
 class PlaylistsService {
-  constructor() {
+  constructor(collaborationsService) {
     this._pool = new Pool();
+    this._collaborationsService = collaborationsService;
   }
 
   async addPlaylist({ name, owner }) {
@@ -27,7 +28,7 @@ class PlaylistsService {
 
   async getPlaylists(owner) {
     const query = {
-      text: 'SELECT playlists.id, playlists.name, users.username FROM playlists INNER JOIN users ON playlists.owner = users.id WHERE playlists.owner = $1',
+      text: 'SELECT playlists.id, playlists.name, users.username AS username FROM playlists LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id LEFT JOIN users ON users.id = playlists.owner WHERE playlists.owner = $1 OR collaborations.user_id = $1 GROUP BY (playlists.id, users.username)',
       values: [owner],
     };
 
@@ -76,7 +77,7 @@ class PlaylistsService {
                 throw error;
             }
             try {
-             await this._collaborationService.verifyCollaborator(playlistId, userId);   
+             await this._collaborationsService.verifyCollaborator(playlistId, userId);   
             } catch {
                 throw error;
             }
@@ -154,8 +155,89 @@ class PlaylistsService {
         if (!result.rowCount) {
             throw new InvariantError('Lagu gagal dihapus dari playlist');
         }
+    }
 
-
+    async addActivity(playlistId, songId, userId) {
+      const songQuery = {
+        text: 'SELECT title FROM songs WHERE id = $1',
+        values: [songId]
+      };
+  
+      const resultSong = await this._pool.query(songQuery);
+      const title = resultSong.rows[0].title;
+  
+      const userQuery = {
+        text: 'SELECT username FROM users WHERE id = $1',
+        values: [userId]
+      };
+  
+      const resultUser = await this._pool.query(userQuery);
+      const username = resultUser.rows[0].username;
+  
+      const idActivity = 'activity-' + nanoid(16);
+      const timeActivity = new Date().toISOString();
+  
+      const activityQuery = {
+        text: 'INSERT INTO playlist_activities (id, playlist_id, song_id, user_id, action, time) VALUES ($1, $2, $3, $4, $5, $6)',
+        values: [idActivity, playlistId, title, username, 'add', timeActivity]
+      };
+  
+      await this._pool.query(activityQuery);
+    }
+  
+    async deleteActivity(playlistId, songId, userId) {
+      const songQuery = {
+        text: 'SELECT title FROM songs WHERE id = $1',
+        values: [songId]
+      };
+  
+      const resultSong = await this._pool.query(songQuery);
+      const title = resultSong.rows[0].title;
+  
+      const queryUser = {
+        text: 'SELECT username FROM users WHERE id = $1',
+        values: [userId]
+      };
+  
+      const resultUser = await this._pool.query(queryUser);
+      const username = resultUser.rows[0].username;
+  
+      const idActivity = 'activity-' + nanoid(16);
+      const timeActivity = new Date().toISOString();
+  
+      const activityQuery = {
+        text: 'INSERT INTO playlist_activities (id, playlist_id, song_id, user_id, action, time) VALUES ($1, $2, $3, $4, $5, $6)',
+        values: [idActivity, playlistId, title, username, 'delete', timeActivity]
+      };
+  
+      await this._pool.query(activityQuery);
+    }
+  
+    async getPlaylistActivities(playlistId) {
+      const query = {
+        text: 'SELECT * FROM playlist_activities WHERE playlist_id = $1',
+        values: [playlistId]
+      };
+  
+      const result = await this._pool.query(query);
+  
+      if (!result.rows.length) {
+        throw new NotFoundError('Tidak ada aktivitas');
+      }
+  
+      const resultMap = result.rows.map(row => {
+        return {
+          username: row.user_id,
+          title: row.song_id,
+          action: row.action,
+          time: row.time
+        };
+      });
+  
+      return {
+        playlistId: playlistId,
+        activities: resultMap
+      };
     }
 }
 
