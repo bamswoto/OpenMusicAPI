@@ -8,33 +8,12 @@ class SongService {
     this._pool = new Pool();
   }
 
-  async getSongs(title, performer) {
-    let result = await this._pool.query("SELECT id, title, performer FROM songs");
-
-    if (title !== undefined) {
-      const query = { 
-      text: "SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE $1",
-      values: ['%'+title+'%'],
-      }
-      result = await this._pool.query(query);
-      if (!result.rows.length) {
-        throw new NotFoundError('Lagu tidak ditemukan');
-      }
-      
-    }
-
-    if (performer !== undefined) {
-      const query = { 
-      text: "SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE $1",
-      values: ['%'+performer+'%'],
-      }
-      result = await this._pool.query(query);
-      if (!result.rows.length) {
-        throw new NotFoundError('Lagu tidak ditemukan');
-      }
-      
-    }
-
+    async getSongs(title = '', performer = '') {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 AND performer ILIKE $2',
+        values: [`%${title}%`, `%${performer}%`],
+      };
+      const result = await this._pool.query(query);
 
     return result.rows;
     }

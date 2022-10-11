@@ -9,7 +9,7 @@ class AlbumsService{
     }
 
     async addAlbum({name, year}){
-        const id = nanoid(16);
+        const id = `album-${nanoid(16)}`;
         const created_at = new Date().toISOString();
         const updated_at = created_at;
 
