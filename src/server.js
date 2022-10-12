@@ -47,7 +47,7 @@ const StorageService = require('./services/storage/StorageService');
 const UploadsValidator = require('./validator/uploads');
 
 //  Album Likes
-const albumLikes = require('./api/albumLikes');
+const albumlikes = require('./api/albumlikes');
 const AlbumLikesService = require('./services/postgres/AlbumLikesService');
 
 //  Cache
@@ -195,7 +195,7 @@ const init = async () => {
             },
         },
         {
-            plugin: albumLikes,
+            plugin: albumlikes,
             options: {
                 service: albumLikesService,
                 albumService,
