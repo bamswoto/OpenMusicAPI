@@ -77,10 +77,10 @@ class AlbumService{
         }
     }
 
-    async addCoverAlbumById(id, fileLocation){
+    async addCoverAlbumById(albumId, fileLocation){
         const query = {
             text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
-            values: [fileLocation, id],
+            values: [fileLocation, albumId],
         };
         const result = await this._pool.query(query);
         if(!result.rows.length){

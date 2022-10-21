@@ -3,10 +3,9 @@ const path = require('path');
 const routes = (handler) => [
     {
         method: 'POST',
-        path: '/albums/{id}/covers',
+        path: '/albums/{albumId}/covers',
         handler: handler.postAlbumCoverHandler,
         options: {
-            auth: 'openmusic_jwt',
             payload: {
                 allow: 'multipart/form-data',
                 multipart: true,

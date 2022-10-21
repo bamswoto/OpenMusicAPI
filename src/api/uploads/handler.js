@@ -9,7 +9,7 @@ class UploadsHandler {
     
     async postAlbumCoverHandler(request, h) {
         const { cover } = request.payload;
-        const { id } = request.params;
+        const { albumId } = request.params;
         this._validator.validateImageHeaders(cover.hapi.headers);
     
         const filename = await this._service.writeFile(cover, cover.hapi);
@@ -18,7 +18,7 @@ class UploadsHandler {
           }://${request.info.host}/upload/images/${filename}`;
 
           
-          await this._albumService.addCoverAlbumById(id, fileLocation);
+          await this._albumService.addCoverAlbumById(albumId, fileLocation);
     
         const response = h.response({
         status: 'success',
